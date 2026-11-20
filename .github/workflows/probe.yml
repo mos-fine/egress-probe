@@ -5,47 +5,30 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
-  issues: write
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: probe
-        continue-on-error: true
         run: |
-          set +e
-          OUT=result.md
-          {
-            echo "runner ip: $(curl -s -m 15 https://api.ipify.org)"
-            echo
-            echo "### cdreader series detail"
-            echo "```"
-          } > "$OUT"
-          curl -s -m 25 -o /tmp/d.json -w "HTTP %{http_code} bytes %{size_download} ip %{remote_ip}" \
-            -H "Referer: https://www.moboreels.com/" -H "Origin: https://www.moboreels.com" \
-            -H "UA: x" -H "User-Agent: Mozilla/5.0 Chrome/144.0" \
-            "https://videoapi-hk.cdreader.com/video/h5/series/detail?seriesId=72945322" >> "$OUT"
-          echo >> "$OUT"
-          echo "```" >> "$OUT"
-          echo "body:" >> "$OUT"
-          echo "```json" >> "$OUT"
-          head -c 700 /tmp/d.json >> "$OUT"
-          echo >> "$OUT"
-          echo "```" >> "$OUT"
-          echo "### moboreels home" >> "$OUT"
-          curl -sL -m 30 -o /tmp/h.html -w "HTTP %{http_code} bytes %{size_download} ip %{remote_ip}" \
-            -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/144.0 Safari/537.36" \
-            https://www.moboreels.com/ >> "$OUT"
-          echo "cards: $(grep -c home-list-item-img /tmp/h.html)" >> "$OUT"
-          cat "$OUT"
-      - name: push result branch
+          set -x
+          pwd > result.md
+          curl -s -m 15 https://api.ipify.org >> result.md
+          echo "" >> result.md
+          curl -s -m 25 -o /tmp/d.json -w "detail HTTP %{http_code} bytes %{size_download} ip %{remote_ip}" -H "Referer: https://www.moboreels.com/" -H "Origin: https://www.moboreels.com" -H "User-Agent: Mozilla/5.0 Chrome/144.0" "https://videoapi-hk.cdreader.com/video/h5/series/detail?seriesId=72945322" >> result.md 2>&1
+          echo "" >> result.md
+          head -c 700 /tmp/d.json >> result.md 2>&1
+          echo "" >> result.md
+          curl -sL -m 30 -o /tmp/h.html -w "home HTTP %{http_code} bytes %{size_download} ip %{remote_ip}" -A "Mozilla/5.0 Chrome/144.0" https://www.moboreels.com/ >> result.md 2>&1
+          echo "" >> result.md
+          grep -c home-list-item-img /tmp/h.html >> result.md 2>&1
+          ls -la >> result.md
+      - name: push
         if: always()
         run: |
-          set +e
           git config user.name probe
           git config user.email probe@users.noreply.github.com
-          git checkout -B probe-result
           git add -f result.md
-          git commit -m "probe result"
-          git push -f origin probe-result
+          git commit -m "probe result" || true
+          git push -f origin HEAD:probe-result || true
