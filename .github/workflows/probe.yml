@@ -39,12 +39,13 @@ jobs:
             https://www.moboreels.com/ >> "$OUT"
           echo "cards: $(grep -c home-list-item-img /tmp/h.html)" >> "$OUT"
           cat "$OUT"
-      - name: report to issue
+      - name: push result branch
         if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set +e
-          python3 -c "import json,os;open('/tmp/payload.json','w').write(json.dumps({'title':'egress probe '+os.environ.get('GITHUB_RUN_ID',''),'body':open('result.md').read()}))"
-          curl -sS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" https://api.github.com/repos/mos-fine/egress-probe/issues -d @/tmp/payload.json -o /tmp/resp.json -w 'issue http %{http_code}\n'
-          head -c 300 /tmp/resp.json
+          git config user.name probe
+          git config user.email probe@users.noreply.github.com
+          git checkout -B probe-result
+          git add -f result.md
+          git commit -m "probe result"
+          git push -f origin probe-result
