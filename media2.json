@@ -1,0 +1,10 @@
+{
+ "url": "https://overseas-video.cdreader.com/008774d6vodsgp1490802114/34e7d0585001834828630826102/f0.mp4?t=6b000684&us=e583ee6d603d49b683085ada7d53de13&whref=*.bestreels.net,*.cdreader.com,www.moboreels.com,web-ru.minidrama.com,*.dokusyo.mobi,*.hoyomou.com,*.chitets.com,*.avtoridei.com,hbotvon.com&sign=bfcbaabd6a80419596bc9ef47c3cb75e",
+ "none": "<HTTPError 403: 'Forbidden'>",
+ "referer": {
+  "status": 200,
+  "ctype": "video/mp4",
+  "bytes": 15876758,
+  "magic": "0000001c6674797069736f6d"
+ }
+}
