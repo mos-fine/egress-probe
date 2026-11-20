@@ -16,7 +16,7 @@ jobs:
 
       - name: probe egress
         run: |
-          set -uo pipefail
+          set -u
           OUT=docs/reports/overseas-egress-probe.md
           mkdir -p docs/reports
           {
@@ -62,7 +62,7 @@ jobs:
           curl -sL -m 30 -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/144.0 Safari/537.36" \
             "https://www.moboreels.com/search?keyword=village" -o /tmp/search.html \
             -w "HTTP %{http_code} | bytes %{size_download}\n" >> "$OUT" || true
-          echo "search cards: $(grep -o home-list-item-img /tmp/search.html 2>/dev/null | wc -l | tr -d " ")" >> "$OUT"
+          echo "search cards: $(grep -c home-list-item-img /tmp/search.html 2>/dev/null || echo 0)" >> "$OUT"
           echo "```" >> "$OUT"
           cat "$OUT"
 
