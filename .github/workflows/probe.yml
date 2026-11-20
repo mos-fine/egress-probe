@@ -1,78 +1,47 @@
-name: overseas-egress-probe
-
+name: egress-probe
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: write
-
+  issues: write
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: probe egress
+      - name: probe
         continue-on-error: true
         run: |
           set +e
-          OUT=docs/reports/overseas-egress-probe.md
-          mkdir -p docs/reports
+          OUT=result.md
           {
-            echo "# 出口探针"
+            echo "runner ip: $(curl -s -m 15 https://api.ipify.org)"
             echo
-            echo "- utc: $(date -u +%FT%TZ)"
-            echo "- runner egress ip: $(curl -s -m 15 https://api.ipify.org || echo n/a)"
-            echo
-            echo "## 1) videoapi-hk.cdreader.com series detail (seriesId=72945322)"
-            echo
+            echo "### cdreader series detail"
             echo "```"
           } > "$OUT"
-
-          curl -s -m 25 -o /tmp/detail.json \
-            -w "HTTP %{http_code} | bytes %{size_download} | ip %{remote_ip} | %{time_total}s\n" \
-            -H "Referer: https://www.moboreels.com/" \
-            -H "Origin: https://www.moboreels.com" \
-            -H "Accept: application/json, text/plain, */*" \
-            -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0 Safari/537.36" \
-            "https://videoapi-hk.cdreader.com/video/h5/series/detail?seriesId=72945322" >> "$OUT" || echo "curl failed" >> "$OUT"
-
+          curl -s -m 25 -o /tmp/d.json -w "HTTP %{http_code} bytes %{size_download} ip %{remote_ip}" \
+            -H "Referer: https://www.moboreels.com/" -H "Origin: https://www.moboreels.com" \
+            -H "UA: x" -H "User-Agent: Mozilla/5.0 Chrome/144.0" \
+            "https://videoapi-hk.cdreader.com/video/h5/series/detail?seriesId=72945322" >> "$OUT"
+          echo >> "$OUT"
           echo "```" >> "$OUT"
-          echo >> "$OUT"
-          echo "body head:" >> "$OUT"
-          echo >> "$OUT"
+          echo "body:" >> "$OUT"
           echo "```json" >> "$OUT"
-          head -c 600 /tmp/detail.json >> "$OUT" 2>/dev/null || true
+          head -c 700 /tmp/d.json >> "$OUT"
           echo >> "$OUT"
           echo "```" >> "$OUT"
-          echo >> "$OUT"
-          echo "## 2) moboreels.com 首页 SSR 卡片数" >> "$OUT"
-          echo >> "$OUT"
-          echo "```" >> "$OUT"
-          curl -sL -m 30 -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/144.0 Safari/537.36" \
-            https://www.moboreels.com/ -o /tmp/home.html \
-            -w "HTTP %{http_code} | bytes %{size_download} | ip %{remote_ip}\n" >> "$OUT" || true
-          echo "home cards: $(grep -o home-list-item-img /tmp/home.html 2>/dev/null | wc -l | tr -d " ")" >> "$OUT"
-          echo "```" >> "$OUT"
-          echo >> "$OUT"
-          echo "## 3) moboreels.com 搜索页 SSR 卡片数" >> "$OUT"
-          echo >> "$OUT"
-          echo "```" >> "$OUT"
-          curl -sL -m 30 -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/144.0 Safari/537.36" \
-            "https://www.moboreels.com/search?keyword=village" -o /tmp/search.html \
-            -w "HTTP %{http_code} | bytes %{size_download}\n" >> "$OUT" || true
-          echo "search cards: $(grep -c home-list-item-img /tmp/search.html 2>/dev/null || echo 0)" >> "$OUT"
-          echo "```" >> "$OUT"
+          echo "### moboreels home" >> "$OUT"
+          curl -sL -m 30 -o /tmp/h.html -w "HTTP %{http_code} bytes %{size_download} ip %{remote_ip}" \
+            -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/144.0 Safari/537.36" \
+            https://www.moboreels.com/ >> "$OUT"
+          echo "cards: $(grep -c home-list-item-img /tmp/h.html)" >> "$OUT"
           cat "$OUT"
-
-      - name: commit result
+      - name: report to issue
         if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name "egress-probe"
-          git config user.email "egress-probe@users.noreply.github.com"
-          git add docs/reports/overseas-egress-probe.md
-          if git diff --quiet --cached; then echo "no change"; exit 0; fi
-          git commit -m "chore: overseas egress probe result [skip ci]"
-          git push
+          gh issue create --title "egress probe $(date -u +%H%M%S)" --body-file result.md || gh issue comment 1 --body-file result.md || true
