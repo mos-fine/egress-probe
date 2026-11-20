@@ -56,8 +56,14 @@ def category_pages(html: str) -> set[str]:
 def parse_detail(html: str, slug: str) -> dict:
     data: dict = {"source_id": slug}
     title = re.search(r'<meta property="og:title" content="([^"]+)"', html)
+    if not title:
+        title = re.search(r"<title>([^<]+)</title>", html) or re.search(
+            r'<h1[^>]*>\s*([^<]{2,120})', html
+        )
     if title:
-        data["title"] = title.group(1).replace(" - MoboReels", "").strip()
+        raw = re.sub(r"\s*[-|]\s*MoboReels.*$", "", title.group(1)).strip()
+        if raw and raw.lower() != slug:
+            data["title"] = raw
     cover = re.search(r'<meta property="og:image" content="([^"]+)"', html)
     if cover:
         data["cover_url"] = cover.group(1).split("?")[0]
@@ -110,6 +116,21 @@ def main() -> int:
             except Exception as exc:  # noqa: BLE001
                 print(f"  search {term} failed: {exc}", flush=True)
         print(f"after search terms: {len(urls)} slugs", flush=True)
+
+    # 修复历史条目：title 还是 slug 的，重新抓一次详情页
+    broken = [row["source_id"] for row in seed if row.get("title") in (None, "", row.get("source_id"))]
+    repair = broken[:80]
+    if repair:
+        print(f"repairing titles: {len(repair)}", flush=True)
+        with ThreadPoolExecutor(max_workers=WORKERS) as pool:
+            for item in pool.map(lambda s: parse_detail(fetch(f"{BASE}/drama/{s}"), s), repair):
+                if not item or not item.get("title"):
+                    continue
+                for row in seed:
+                    if row["source_id"] == item["source_id"]:
+                        row["title"] = item["title"]
+                        row.setdefault("episode_total", item.get("episode_total"))
+                        row.setdefault("intro", item.get("intro"))
 
     fresh = sorted(urls - known)[:MAX_NEW]
     print(f"new slugs to fetch: {len(fresh)}", flush=True)
