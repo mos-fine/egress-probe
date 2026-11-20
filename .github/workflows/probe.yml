@@ -13,17 +13,19 @@ jobs:
       - name: probe
         run: |
           set -x
-          pwd > result.md
-          curl -s -m 15 https://api.ipify.org >> result.md
+          UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0 Safari/537.36"
+          echo "# detail page SSR" > result.md
+          curl -sL -m 40 -A "$UA" -o /tmp/detail.html -w "detail-page HTTP %{http_code} bytes %{size_download}" "https://www.moboreels.com/drama/a-village-girl-tamed-the-citys-most-wanted-72945322" >> result.md 2>&1
           echo "" >> result.md
-          curl -s -m 25 -o /tmp/d.json -w "detail HTTP %{http_code} bytes %{size_download} ip %{remote_ip}" -H "Referer: https://www.moboreels.com/" -H "Origin: https://www.moboreels.com" -H "User-Agent: Mozilla/5.0 Chrome/144.0" "https://videoapi-hk.cdreader.com/video/h5/series/detail?seriesId=72945322" >> result.md 2>&1
-          echo "" >> result.md
-          head -c 700 /tmp/d.json >> result.md 2>&1
-          echo "" >> result.md
-          curl -sL -m 30 -o /tmp/h.html -w "home HTTP %{http_code} bytes %{size_download} ip %{remote_ip}" -A "Mozilla/5.0 Chrome/144.0" https://www.moboreels.com/ >> result.md 2>&1
-          echo "" >> result.md
-          grep -c home-list-item-img /tmp/h.html >> result.md 2>&1
-          ls -la >> result.md
+          echo "episode links: $(grep -o "/episode/" /tmp/detail.html | wc -l)" >> result.md
+          echo "episode chip html: $(grep -o "episode-item" /tmp/detail.html | wc -l)" >> result.md
+          grep -o -E "lastEpis[^,}]{0,20}|allEpis[^,}]{0,20}|payEpisFrom[^,}]{0,20}" /tmp/detail.html | head -5 >> result.md 2>&1
+          grep -o -E "[0-9]{1,3}\s*(Episodes|episodes)" /tmp/detail.html | head -5 >> result.md 2>&1
+          echo "--- api probes ---" >> result.md
+          for u in "https://videoapi-hk.cdreader.com/video/h5/series/detail?seriesId=72945322" "https://videoapi-hk.cdreader.com/video/h5/series/detail?id=72945322" "https://videoapi-hk.cdreader.com/video/series/detail?seriesId=72945322" "https://videoapi-hk.cdreader.com/video/h5/series/72945322"; do
+            code=$(curl -s -m 20 -o /tmp/r.json -w "%{http_code}/%{size_download}" -H "Referer: https://www.moboreels.com/" -H "Origin: https://www.moboreels.com" -H "User-Agent: $UA" "$u")
+            echo "$u -> $code $(head -c 120 /tmp/r.json)" >> result.md
+          done
       - name: push
         if: always()
         run: |
