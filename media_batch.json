@@ -1,0 +1,128 @@
+{
+ "rows": [
+  {
+   "ep": 1,
+   "bytes": 10996803,
+   "ftyp": true,
+   "secs": 3.4
+  },
+  {
+   "ep": 2,
+   "bytes": 4129600,
+   "ftyp": true,
+   "secs": 3.3
+  },
+  {
+   "ep": 3,
+   "bytes": 6356788,
+   "ftyp": true,
+   "secs": 3.5
+  },
+  {
+   "ep": 4,
+   "bytes": 7775104,
+   "ftyp": true,
+   "secs": 3.0
+  },
+  {
+   "ep": 5,
+   "bytes": 5814794,
+   "ftyp": true,
+   "secs": 2.7
+  },
+  {
+   "ep": 6,
+   "bytes": 5433167,
+   "ftyp": true,
+   "secs": 3.3
+  },
+  {
+   "ep": 7,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 1.7
+  },
+  {
+   "ep": 8,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 3.6
+  },
+  {
+   "ep": 9,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 3.8
+  },
+  {
+   "ep": 10,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 4.2
+  },
+  {
+   "ep": 11,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 3.8
+  },
+  {
+   "ep": 12,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 3.7
+  },
+  {
+   "ep": 13,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 1.2
+  },
+  {
+   "ep": 14,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 2.3
+  },
+  {
+   "ep": 15,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 1.4
+  },
+  {
+   "ep": 16,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 3.9
+  },
+  {
+   "ep": 17,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 2.6
+  },
+  {
+   "ep": 18,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 2.7
+  },
+  {
+   "ep": 19,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 3.1
+  },
+  {
+   "ep": 20,
+   "bytes": 56146,
+   "ftyp": false,
+   "secs": 4.5
+  }
+ ],
+ "ok": 6,
+ "fail": 14,
+ "bytes": 41292300,
+ "wall": 61.3
+}
