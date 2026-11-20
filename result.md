@@ -1,5 +1,5 @@
 ## detail page SSR
-status 200 bytes 196600
+status 200 bytes 196593
 episode links: 40
 lastEpis: ['lastEpis:aN', 'lastEpis:al', 'lastEpis:p']
 allEpis: ['allEpis:aN', 'allEpis:al', 'allEpis:p']
