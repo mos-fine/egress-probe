@@ -29,6 +29,12 @@ UA = (
     "(KHTML, like Gecko) Chrome/144.0 Safari/537.36"
 )
 MAX_NEW = int(os.environ.get("MAX_NEW", "150"))
+#: 搜索页在海外出口是 SSR 的，用来把目录从「首页+分类」扩到几百部
+SEARCH_TERMS = [
+    "love", "revenge", "ceo", "werewolf", "marriage", "rebirth", "billionaire",
+    "contract", "alpha", "vampire", "divorce", "pregnant", "secret", "mafia",
+    "system", "cultivation", "romance", "family", "hate", "reborn",
+]
 WORKERS = int(os.environ.get("WORKERS", "6"))
 TIMEOUT = 30
 
@@ -96,6 +102,14 @@ def main() -> int:
             print(f"  {path}: cumulative {len(urls)}", flush=True)
         except Exception as exc:  # noqa: BLE001
             print(f"  {path} failed: {exc}", flush=True)
+
+    if os.environ.get("USE_SEARCH", "1") == "1":
+        for term in SEARCH_TERMS:
+            try:
+                urls |= slugs_from(fetch(f"{BASE}/search?keyword={term}"))
+            except Exception as exc:  # noqa: BLE001
+                print(f"  search {term} failed: {exc}", flush=True)
+        print(f"after search terms: {len(urls)} slugs", flush=True)
 
     fresh = sorted(urls - known)[:MAX_NEW]
     print(f"new slugs to fetch: {len(fresh)}", flush=True)
