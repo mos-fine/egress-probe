@@ -1,0 +1,23 @@
+name: reelshort-resolve
+on:
+  push:
+    paths: ["rs_resolve.py"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  r:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 rs_resolve.py
+      - name: push
+        if: always()
+        run: |
+          git config user.name resolver
+          git config user.email resolver@users.noreply.github.com
+          git add -f rs_urls.json
+          git commit -m "reelshort urls" || true
+          git pull --rebase -q origin main || true
+          git push origin HEAD:main || true
