@@ -1,9 +1,9 @@
 ## detail page SSR
-status 200 bytes 196176
+status 200 bytes 195006
 episode links: 40
-lastEpis: ['lastEpis:aL', 'lastEpis:al', 'lastEpis:o']
-allEpis: ['allEpis:aL', 'allEpis:al', 'allEpis:o']
-payEpisFrom: ['payEpisFrom:G', 'payEpisFrom:Y', 'payEpisFrom:R']
+lastEpis: ['lastEpis:aG', 'lastEpis:af', 'lastEpis:p']
+allEpis: ['allEpis:aG', 'allEpis:af', 'allEpis:p']
+payEpisFrom: ['payEpisFrom:B', 'payEpisFrom:Y', 'payEpisFrom:Z']
 episodes-text: ['78', '78', '78', '78', '78']
 
 ## api variants
